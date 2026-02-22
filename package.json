@@ -1,0 +1,36 @@
+{
+  "name": "retro",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n server,vite -c cyan,green \"bash -c 'source ~/.nvm/nvm.sh && nvm use --silent && node server/index.js'\" \"vite\"",
+    "server": "bash -c 'source ~/.nvm/nvm.sh && nvm use --silent && node server/index.js'",
+    "build": "vite build",
+    "start": "bash -c 'source ~/.nvm/nvm.sh && nvm use --silent && node server/index.js'",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.0",
+    "better-sqlite3": "^12.6.2",
+    "concurrently": "^9.2.1",
+    "express": "^5.2.1",
+    "ioredis": "^5.9.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tailwindcss": "^4.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "sharp": "^0.34.5",
+    "vite": "^7.3.1"
+  }
+}

@@ -1,0 +1,24 @@
+services:
+  retro:
+    build: .
+    ports:
+      - "9977:9977"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - SERVER_PORT=9977
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped

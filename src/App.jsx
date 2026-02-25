@@ -989,7 +989,19 @@ function parseSystemLogo(medias) {
   )
 }
 
+const SYSTEMS_CACHE_KEY = 'ss-systems-cache'
+const SYSTEMS_CACHE_TTL = 86400_000 // 24 h en ms
+
 async function fetchAllSystemsWithConfig(config) {
+  // Intentar servir desde localStorage
+  try {
+    const raw = localStorage.getItem(SYSTEMS_CACHE_KEY)
+    if (raw) {
+      const { ts, data } = JSON.parse(raw)
+      if (Date.now() - ts < SYSTEMS_CACHE_TTL) return data
+    }
+  } catch { /* caché corrupta, se ignora */ }
+
   const params = new URLSearchParams({ devid: config.devid || '', devpassword: config.devpassword || '', softname: config.softname || 'retro-search', output: 'json' })
   if (config.ssid)       params.set('ssid',       config.ssid)
   if (config.sspassword) params.set('sspassword', config.sspassword)
@@ -998,7 +1010,7 @@ async function fetchAllSystemsWithConfig(config) {
   const data = await res.json()
   const systemes = data?.response?.systemes
   if (!Array.isArray(systemes)) throw new Error('Respuesta inesperada de ScreenScraper')
-  return systemes.map(s => {
+  const systems = systemes.map(s => {
     const noms = s.noms || {}
     return {
       id: String(s.id), name: parseSystemName(s),
@@ -1008,6 +1020,11 @@ async function fetchAllSystemsWithConfig(config) {
       logoUrl: parseSystemLogo(s.medias),
     }
   }).filter(s => s.name)
+
+  // Persistir en localStorage
+  try { localStorage.setItem(SYSTEMS_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: systems })) } catch { /* quota exceeded, no pasa nada */ }
+
+  return systems
 }
 
 async function searchGamesWithConfig(query, config, systemeid = '') {
@@ -1086,7 +1103,9 @@ function getNameForRegion(noms, region) {
 function explodeToReleases(jeu) {
   const plats = jeu.systeme ? [jeu.systeme] : []; const dates = jeu.dates || []; const noms = jeu.noms || []; const medias = jeu.medias || []
   const dateByRegion = {}; for (const d of dates) if (d.region && d.text) dateByRegion[d.region] = d.text.split('-')[0]
-  const regions = Object.keys(dateByRegion); const effectivePlats = plats.length > 0 ? plats : [{ id: 'unknown', text: '—' }]
+  const nomRegions = noms.filter(n => n.region && n.region !== 'ss').map(n => n.region)
+  const regions = [...new Set([...nomRegions, ...Object.keys(dateByRegion)])]
+  const effectivePlats = plats.length > 0 ? plats : [{ id: 'unknown', text: '—' }]
   const releases = []
   for (const platform of effectivePlats) {
     const platformName = platform.text || platform.noms?.[0]?.text || '—'; const coverUrls = getAllCovers(medias)

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { uploadCover } from '../db'
 
 const REGIONS = [
   { value: 'wor', label: 'Mundial' },
@@ -30,6 +31,10 @@ const inputClass = "w-full px-3 py-2 text-sm border border-gray-200 dark:border-
 
 export default function AddGameManualModal({ onConfirm, onCancel }) {
   const [form, setForm] = useState({ title: '', platform: '', year: '', region: 'wor' })
+  const [coverFile, setCoverFile] = useState(null)
+  const [coverPreview, setCoverPreview] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef(null)
 
   function set(key, value) {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -37,9 +42,37 @@ export default function AddGameManualModal({ onConfirm, onCancel }) {
 
   const canSubmit = form.title.trim().length > 0
 
-  function handleSubmit() {
-    if (!canSubmit) return
+  function handleFileSelect(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCoverFile(file)
+    if (coverPreview) URL.revokeObjectURL(coverPreview)
+    setCoverPreview(URL.createObjectURL(file))
+  }
+
+  function clearCover() {
+    setCoverFile(null)
+    if (coverPreview) URL.revokeObjectURL(coverPreview)
+    setCoverPreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  async function handleSubmit() {
+    if (!canSubmit || uploading) return
     const region = form.region || 'wor'
+
+    let coverUrl = null
+    if (coverFile) {
+      setUploading(true)
+      try {
+        coverUrl = await uploadCover(coverFile)
+      } catch {
+        coverUrl = null
+      } finally {
+        setUploading(false)
+      }
+    }
+
     onConfirm({
       id:          `manual-${Date.now()}`,
       gameId:      `manual-${Date.now()}`,
@@ -49,8 +82,8 @@ export default function AddGameManualModal({ onConfirm, onCancel }) {
       region,
       regionLabel: REGION_MAP[region] || region.toUpperCase(),
       year:        form.year.trim() || '—',
-      coverUrl:    null,
-      coverUrls:   [],
+      coverUrl,
+      coverUrls:   coverUrl ? [{ url: coverUrl, label: 'Portada subida' }] : [],
     })
   }
 
@@ -130,14 +163,48 @@ export default function AddGameManualModal({ onConfirm, onCancel }) {
             </Field>
           </div>
 
-          {/* Placeholder preview */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600 mt-1">
-            <div className="w-10 h-14 rounded flex items-center justify-center bg-white dark:bg-gray-700 flex-shrink-0 border border-gray-200 dark:border-gray-600 text-xl">
-              🎮
-            </div>
-            <p className="text-xs text-gray-400 dark:text-gray-500 leading-relaxed">
-              Se usará un icono genérico como portada. Podrás seleccionar el estado del juego a continuación.
-            </p>
+          {/* Cover upload */}
+          <div className="mt-1">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+
+            {coverPreview ? (
+              <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
+                <img
+                  src={coverPreview}
+                  alt="Vista previa"
+                  className="w-10 h-14 rounded object-contain flex-shrink-0 border border-gray-200 dark:border-gray-600"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-gray-600 dark:text-gray-300 truncate">{coverFile.name}</p>
+                  <button
+                    type="button"
+                    onClick={clearCover}
+                    className="text-xs text-red-400 hover:text-red-500 mt-0.5"
+                  >
+                    Quitar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-3 p-3 w-full bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-400 transition-colors"
+              >
+                <div className="w-10 h-14 rounded flex items-center justify-center bg-white dark:bg-gray-700 flex-shrink-0 border border-gray-200 dark:border-gray-600 text-xl">
+                  🎮
+                </div>
+                <p className="text-xs text-gray-400 dark:text-gray-500 leading-relaxed text-left">
+                  Pulsa para subir una portada, o continúa sin imagen.
+                </p>
+              </button>
+            )}
           </div>
         </div>
 
@@ -152,9 +219,9 @@ export default function AddGameManualModal({ onConfirm, onCancel }) {
           <button
             className="px-4 py-2 text-sm font-medium bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             onClick={handleSubmit}
-            disabled={!canSubmit}
+            disabled={!canSubmit || uploading}
           >
-            Siguiente →
+            {uploading ? 'Subiendo...' : 'Siguiente →'}
           </button>
         </div>
       </div>

@@ -1,12 +1,18 @@
 import express from 'express'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { mkdirSync } from 'fs'
+import { randomUUID } from 'crypto'
+import sharp from 'sharp'
 import { getAll, add, remove, getConfig, saveConfig } from './db.js'
 import Redis from 'ioredis'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const PORT      = process.env.SERVER_PORT || 3001
-const app       = express()
+const __dirname  = dirname(fileURLToPath(import.meta.url))
+const PORT       = process.env.SERVER_PORT || 3001
+const COVERS_DIR = join(__dirname, '../data/covers')
+const app        = express()
+
+mkdirSync(COVERS_DIR, { recursive: true })
 
 // ── Redis ─────────────────────────────────────────────────────────────────────
 // TTL en segundos por tipo de endpoint
@@ -64,6 +70,70 @@ app.use(express.json({ limit: '2mb' }))
 
 // Serve built React app in production
 app.use(express.static(join(__dirname, '../dist')))
+
+// Serve uploaded covers
+app.use('/covers', express.static(COVERS_DIR))
+
+// ── Cover upload ────────────────────────────────────────────────────────────
+
+app.post('/api/covers', async (req, res) => {
+  const contentType = req.headers['content-type'] || ''
+  if (!contentType.startsWith('image/')) {
+    return res.status(400).json({ error: 'Content-Type must be image/*' })
+  }
+
+  const chunks = []
+  for await (const chunk of req) chunks.push(chunk)
+  const buffer = Buffer.concat(chunks)
+
+  if (buffer.length > 5 * 1024 * 1024) {
+    return res.status(413).json({ error: 'Image too large (max 5 MB)' })
+  }
+
+  const filename = `${randomUUID()}.webp`
+  const filepath = join(COVERS_DIR, filename)
+
+  try {
+    await sharp(buffer)
+      .resize(400, 560, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(filepath)
+
+    res.json({ url: `/covers/${filename}` })
+  } catch {
+    res.status(422).json({ error: 'Could not process image' })
+  }
+})
+
+app.post('/api/covers/download', async (req, res) => {
+  const { url } = req.body || {}
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ error: 'Missing url' })
+  }
+
+  try {
+    const upstream = await fetch(url)
+    if (!upstream.ok) return res.status(502).json({ error: 'Could not fetch image' })
+
+    const buffer = Buffer.from(await upstream.arrayBuffer())
+
+    if (buffer.length > 10 * 1024 * 1024) {
+      return res.status(413).json({ error: 'Image too large' })
+    }
+
+    const filename = `${randomUUID()}.webp`
+    const filepath = join(COVERS_DIR, filename)
+
+    await sharp(buffer)
+      .resize(400, 560, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(filepath)
+
+    res.json({ url: `/covers/${filename}` })
+  } catch {
+    res.status(422).json({ error: 'Could not process image' })
+  }
+})
 
 // ── Collection ───────────────────────────────────────────────────────────────
 

@@ -8,6 +8,7 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:3001',
       '/ss-api': 'http://localhost:3001',
+      '/covers': 'http://localhost:3001',
     },
   },
 })

@@ -11,7 +11,7 @@ import ConfirmModal from './components/ConfirmModal'
 import AddToCollectionModal from './components/AddToCollectionModal'
 import AddPlatformManualModal from './components/AddPlatformManualModal'
 import AddGameManualModal from './components/AddGameManualModal'
-import { configLoad, configSave } from './db'
+import { configLoad, configSave, downloadCover } from './db'
 
 export default function App() {
   const [games, setGames] = useState([])
@@ -717,8 +717,12 @@ export default function App() {
       {pendingAdd && (
         <AddToCollectionModal
           game={pendingAdd}
-          onConfirm={(condition, esSpanish, coverUrl, isPlatino) => {
-            addGame({ ...pendingAdd, id: `${pendingAdd.id}-${Date.now()}`, gameId: pendingAdd.id, condition, esSpanish, isPlatino, coverUrl: coverUrl || pendingAdd.coverUrl, addedAt: Date.now() })
+          onConfirm={async (condition, esSpanish, coverUrl, isPlatino) => {
+            let finalCover = coverUrl || pendingAdd.coverUrl
+            if (finalCover && !finalCover.startsWith('/covers/')) {
+              try { finalCover = await downloadCover(finalCover) } catch { /* keep original URL as fallback */ }
+            }
+            addGame({ ...pendingAdd, id: `${pendingAdd.id}-${Date.now()}`, gameId: pendingAdd.id, condition, esSpanish, isPlatino, coverUrl: finalCover, addedAt: Date.now() })
             if (wishlist.some(g => g.id === pendingAdd.id)) removeFromWishlist(pendingAdd.id)
             setPendingAdd(null)
           }}

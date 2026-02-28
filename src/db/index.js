@@ -39,3 +39,25 @@ export async function configSave(config) {
     body: JSON.stringify(config),
   })
 }
+
+export async function uploadCover(file) {
+  const res = await fetch('/api/covers', {
+    method: 'POST',
+    headers: { 'Content-Type': file.type },
+    body: file,
+  })
+  if (!res.ok) throw new Error('Error subiendo portada')
+  const { url } = await res.json()
+  return url
+}
+
+export async function downloadCover(imageUrl) {
+  const res = await fetch('/api/covers/download', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: imageUrl }),
+  })
+  if (!res.ok) throw new Error('Error descargando portada')
+  const { url } = await res.json()
+  return url
+}

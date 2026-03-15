@@ -11,7 +11,10 @@ import ConfirmModal from './components/ConfirmModal'
 import AddToCollectionModal from './components/AddToCollectionModal'
 import AddPlatformManualModal from './components/AddPlatformManualModal'
 import AddGameManualModal from './components/AddGameManualModal'
-import { configLoad, configSave, downloadCover } from './db'
+import LibroCard from './components/LibroCard'
+import AddLibroManualModal from './components/AddLibroManualModal'
+import { useLibros } from './hooks/useLibros'
+import { configLoad, configSave, downloadCover, downloadLogo } from './db'
 
 export default function App() {
   const [games, setGames] = useState([])
@@ -29,6 +32,7 @@ export default function App() {
   const { collection, addGame, removeGame, updateGame } = useCollection()
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist()
   const { platforms, addPlatform, removePlatform, hasPlatform } = usePlatforms()
+  const { libros, addLibro, removeLibro } = useLibros()
   const [platformResults, setPlatformResults] = useState([])
   const [isPlatformLoading, setIsPlatformLoading] = useState(false)
   const [platformError, setPlatformError] = useState(null)
@@ -41,6 +45,15 @@ export default function App() {
   const [pendingWishlistRemove, setPendingWishlistRemove] = useState(null)
   const [pendingAdd, setPendingAdd] = useState(null)
 
+  // Wrapper: download external logos locally before persisting
+  const addPlatformWithLogo = useCallback(async (platform) => {
+    let logoUrl = platform.logoUrl
+    if (logoUrl && !logoUrl.startsWith('/logos/')) {
+      try { logoUrl = await downloadLogo(logoUrl) } catch { /* keep original URL as fallback */ }
+    }
+    addPlatform({ ...platform, logoUrl })
+  }, [addPlatform])
+
   // ── Add mode & quick filters ───────────────────────────────────────────────
   // addMode=true  → header shows ScreenScraper search bar
   // addMode=false → header shows filter fields (quick search)
@@ -49,6 +62,8 @@ export default function App() {
   const [platformFilters, setPlatformFilters] = useState({ name: '', type: '', company: '' })
   const [showManualPlatformModal, setShowManualPlatformModal] = useState(false)
   const [showManualGameModal, setShowManualGameModal] = useState(false)
+  const [showManualLibroModal, setShowManualLibroModal] = useState(false)
+  const [libroFilters, setLibroFilters] = useState({ name: '', tipo: '' })
   const [collectionSort, setCollectionSort] = useState('date-desc')
   // preSearchPlatformId → sent to ScreenScraper API (server-side filter)
   // searchRegionFilter  → applied client-side to the results
@@ -67,6 +82,7 @@ export default function App() {
     setView(newView)
     setAddMode(false)
     setGameFilters({ name: '', platform: '', region: '' })
+    setLibroFilters({ name: '', tipo: '' })
     if (newView !== 'home') setHasSearched(false)
     if (newView === 'platforms') {
       setHasPlatformSearched(false)
@@ -85,6 +101,10 @@ export default function App() {
 
   // ── +Añadir ───────────────────────────────────────────────────────────────
   function handleAddClick() {
+    if (view === 'libros') {
+      setShowManualLibroModal(true)
+      return
+    }
     if (view === 'platforms') {
       setAddMode(true)
     } else {
@@ -108,6 +128,8 @@ export default function App() {
 
   const platTypeOptions    = [...new Set(platforms.map(p => p.type).filter(Boolean))].sort()
   const platCompanyOptions = [...new Set(platforms.map(p => p.company).filter(Boolean))].sort()
+
+  const libroTipoOptions = [...new Set(libros.map(l => l.tipo).filter(Boolean))].sort()
 
   // ── Search filters (game search bar) ─────────────────────────────────────
   // Platform: pre-search, API-level (systemeid param). Full list from ScreenScraper.
@@ -149,6 +171,12 @@ export default function App() {
     if (platformFilters.type    && p.type    !== platformFilters.type)    return false
     if (platformFilters.company && p.company !== platformFilters.company)  return false
     if (platformFilters.name.trim() && !p.name.toLowerCase().includes(platformFilters.name.trim().toLowerCase())) return false
+    return true
+  })
+
+  const filteredLibros = libros.filter(l => {
+    if (libroFilters.tipo && l.tipo !== libroFilters.tipo) return false
+    if (libroFilters.name.trim() && !l.name.toLowerCase().includes(libroFilters.name.trim().toLowerCase())) return false
     return true
   })
 
@@ -332,10 +360,12 @@ export default function App() {
               view={view}
               gameFilters={gameFilters}       setGameFilters={setGameFilters}
               platformFilters={platformFilters} setPlatformFilters={setPlatformFilters}
+              libroFilters={libroFilters}     setLibroFilters={setLibroFilters}
               gameFilterPlatforms={gameFilterPlatformOptions}
               gameFilterRegions={gameFilterRegionOptions}
               platTypes={platTypeOptions}
               platCompanies={platCompanyOptions}
+              libroTipos={libroTipoOptions}
               collectionSort={collectionSort} setCollectionSort={setCollectionSort}
             />
           )}
@@ -363,6 +393,7 @@ export default function App() {
               {[
                 { label: 'Inicio',      action: () => goTo('home'),       icon: <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z" /> },
                 { label: 'Plataformas', action: () => goTo('platforms'),  icon: <><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h2m2 0h2M12 8v4"/><circle cx="17" cy="12" r="1" fill="currentColor"/></> },
+                { label: 'Libros',     action: () => goTo('libros'),    icon: <><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></> },
                 { label: 'Wishlist',    action: () => goTo('wishlist'),   icon: <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /> },
                 { label: 'Playground',  action: () => goTo('playground'), icon: <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" stroke="none" /> },
               ].map(({ label, action, icon }) => (
@@ -370,7 +401,7 @@ export default function App() {
                   key={label}
                   className={`w-full text-left px-3 py-2.5 text-sm rounded-lg transition-colors flex items-center gap-2.5 ${
                     (label === 'Inicio' && view === 'home') || (label === 'Plataformas' && view === 'platforms') ||
-                    (label === 'Wishlist' && view === 'wishlist') || (label === 'Playground' && view === 'playground')
+                    (label === 'Libros' && view === 'libros') || (label === 'Wishlist' && view === 'wishlist') || (label === 'Playground' && view === 'playground')
                       ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
@@ -621,7 +652,7 @@ export default function App() {
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {platformResults.map(platform => (
-                        <PlatformCard key={platform.id} platform={platform} onAdd={addPlatform} inCollection={hasPlatform(platform.id)} />
+                        <PlatformCard key={platform.id} platform={platform} onAdd={addPlatformWithLogo} inCollection={hasPlatform(platform.id)} />
                       ))}
                     </div>
                   </>
@@ -672,6 +703,33 @@ export default function App() {
           )
         )}
 
+        {/* Libros */}
+        {view === 'libros' && (
+          libros.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-64 gap-4 text-center">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300 dark:text-gray-600">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
+              <div>
+                <h2 className="text-base font-medium text-gray-700 dark:text-gray-300 mb-1">Sin libros</h2>
+                <p className="text-sm text-gray-400">Pulsa <span className="font-medium text-gray-600 dark:text-gray-400">+ Añadir</span> para registrar un libro</p>
+              </div>
+            </div>
+          ) : filteredLibros.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-64 gap-3 text-center">
+              <span className="text-3xl">🔍</span>
+              <p className="text-sm text-gray-400">No hay libros que coincidan</p>
+              <button className="text-xs text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 underline transition-colors" onClick={() => setLibroFilters({ name: '', tipo: '' })}>Limpiar filtros</button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filteredLibros.map(libro => (
+                <LibroCard key={libro.id} libro={libro} onRemove={removeLibro} />
+              ))}
+            </div>
+          )
+        )}
+
       </main>
 
       {/* ── Modals ─────────────────────────────────────────────────────────── */}
@@ -685,6 +743,16 @@ export default function App() {
             setAddMode(false)
           }}
           onCancel={() => setShowManualPlatformModal(false)}
+        />
+      )}
+
+      {showManualLibroModal && (
+        <AddLibroManualModal
+          onConfirm={libro => {
+            addLibro(libro)
+            setShowManualLibroModal(false)
+          }}
+          onCancel={() => setShowManualLibroModal(false)}
         />
       )}
 
@@ -743,14 +811,17 @@ const SORT_OPTIONS = [
   { value: 'year-asc',  label: 'Año ↑' },
 ]
 
-function FilterBar({ view, gameFilters, setGameFilters, platformFilters, setPlatformFilters, gameFilterPlatforms, gameFilterRegions, platTypes, platCompanies, collectionSort, setCollectionSort }) {
+function FilterBar({ view, gameFilters, setGameFilters, platformFilters, setPlatformFilters, libroFilters, setLibroFilters, gameFilterPlatforms, gameFilterRegions, platTypes, platCompanies, libroTipos, collectionSort, setCollectionSort }) {
   const isPlatforms = view === 'platforms'
-  const filters     = isPlatforms ? platformFilters    : gameFilters
-  const setFilters  = isPlatforms ? setPlatformFilters : setGameFilters
+  const isLibros    = view === 'libros'
+  const filters     = isLibros ? libroFilters : isPlatforms ? platformFilters    : gameFilters
+  const setFilters  = isLibros ? setLibroFilters : isPlatforms ? setPlatformFilters : setGameFilters
 
-  const placeholder = { home: 'Buscar en tu colección...', wishlist: 'Buscar en tu wishlist...', playground: 'Buscar en tu playground...', platforms: 'Buscar en tus plataformas...' }[view] ?? 'Buscar...'
+  const placeholder = { home: 'Buscar en tu colección...', wishlist: 'Buscar en tu wishlist...', playground: 'Buscar en tu playground...', platforms: 'Buscar en tus plataformas...', libros: 'Buscar en tus libros...' }[view] ?? 'Buscar...'
 
-  const filterDropdowns = isPlatforms
+  const filterDropdowns = isLibros
+    ? [{ key: 'tipo', label: 'Todos los tipos', options: libroTipos }]
+    : isPlatforms
     ? [{ key: 'type',    label: 'Todos los tipos',    options: platTypes    },
        { key: 'company', label: 'Todas las marcas',   options: platCompanies }]
     : [{ key: 'platform', label: 'Todas las plataformas', options: gameFilterPlatforms },
@@ -812,8 +883,8 @@ function FilterBar({ view, gameFilters, setGameFilters, platformFilters, setPlat
           </div>
         ))}
 
-        {/* Sort dropdown — only for game views (not platforms) */}
-        {!isPlatforms && (
+        {/* Sort dropdown — only for game views (not platforms/libros) */}
+        {!isPlatforms && !isLibros && (
           <div className="relative flex-1 min-w-0">
             <select
               value={collectionSort}

@@ -61,3 +61,25 @@ export async function downloadCover(imageUrl) {
   const { url } = await res.json()
   return url
 }
+
+export async function uploadLogo(file) {
+  const res = await fetch('/api/logos', {
+    method: 'POST',
+    headers: { 'Content-Type': file.type },
+    body: file,
+  })
+  if (!res.ok) throw new Error('Error subiendo logo')
+  const { url } = await res.json()
+  return url
+}
+
+export async function downloadLogo(imageUrl) {
+  const res = await fetch('/api/logos/download', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: imageUrl }),
+  })
+  if (!res.ok) throw new Error('Error descargando logo')
+  const { url } = await res.json()
+  return url
+}

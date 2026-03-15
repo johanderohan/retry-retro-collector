@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { uploadLogo } from '../db'
 
 const CONSOLE_ICON = (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300 dark:text-gray-500">
@@ -22,6 +23,10 @@ const inputClass = "w-full px-3 py-2 text-sm border border-gray-200 dark:border-
 
 export default function AddPlatformManualModal({ onConfirm, onCancel }) {
   const [form, setForm] = useState({ name: '', company: '', type: '', yearStart: '', yearEnd: '' })
+  const [logoFile, setLogoFile] = useState(null)
+  const [logoPreview, setLogoPreview] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef(null)
 
   function set(key, value) {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -29,8 +34,36 @@ export default function AddPlatformManualModal({ onConfirm, onCancel }) {
 
   const canSubmit = form.name.trim().length > 0
 
-  function handleSubmit() {
-    if (!canSubmit) return
+  function handleFileSelect(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setLogoFile(file)
+    if (logoPreview) URL.revokeObjectURL(logoPreview)
+    setLogoPreview(URL.createObjectURL(file))
+  }
+
+  function clearLogo() {
+    setLogoFile(null)
+    if (logoPreview) URL.revokeObjectURL(logoPreview)
+    setLogoPreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  async function handleSubmit() {
+    if (!canSubmit || uploading) return
+
+    let logoUrl = null
+    if (logoFile) {
+      setUploading(true)
+      try {
+        logoUrl = await uploadLogo(logoFile)
+      } catch {
+        logoUrl = null
+      } finally {
+        setUploading(false)
+      }
+    }
+
     onConfirm({
       id: `manual-${Date.now()}`,
       name: form.name.trim(),
@@ -39,7 +72,7 @@ export default function AddPlatformManualModal({ onConfirm, onCancel }) {
       yearStart: form.yearStart.trim(),
       yearEnd: form.yearEnd.trim(),
       aliases: '',
-      logoUrl: null,
+      logoUrl,
     })
   }
 
@@ -124,14 +157,48 @@ export default function AddPlatformManualModal({ onConfirm, onCancel }) {
             </Field>
           </div>
 
-          {/* Placeholder preview */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600 mt-1">
-            <div className="w-10 h-10 rounded flex items-center justify-center bg-white dark:bg-gray-700 flex-shrink-0 border border-gray-200 dark:border-gray-600">
-              {CONSOLE_ICON}
-            </div>
-            <p className="text-xs text-gray-400 dark:text-gray-500 leading-relaxed">
-              Se usará un icono genérico de consola como imagen
-            </p>
+          {/* Logo upload */}
+          <div className="mt-1">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+
+            {logoPreview ? (
+              <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
+                <img
+                  src={logoPreview}
+                  alt="Vista previa"
+                  className="w-10 h-10 rounded object-contain flex-shrink-0 border border-gray-200 dark:border-gray-600"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-gray-600 dark:text-gray-300 truncate">{logoFile.name}</p>
+                  <button
+                    type="button"
+                    onClick={clearLogo}
+                    className="text-xs text-red-400 hover:text-red-500 mt-0.5"
+                  >
+                    Quitar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-3 p-3 w-full bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-400 transition-colors"
+              >
+                <div className="w-10 h-10 rounded flex items-center justify-center bg-white dark:bg-gray-700 flex-shrink-0 border border-gray-200 dark:border-gray-600">
+                  {CONSOLE_ICON}
+                </div>
+                <p className="text-xs text-gray-400 dark:text-gray-500 leading-relaxed text-left">
+                  Pulsa para subir un logo, o continúa sin imagen.
+                </p>
+              </button>
+            )}
           </div>
         </div>
 
@@ -146,9 +213,9 @@ export default function AddPlatformManualModal({ onConfirm, onCancel }) {
           <button
             className="px-4 py-2 text-sm font-medium bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             onClick={handleSubmit}
-            disabled={!canSubmit}
+            disabled={!canSubmit || uploading}
           >
-            Añadir
+            {uploading ? 'Subiendo...' : 'Añadir'}
           </button>
         </div>
       </div>

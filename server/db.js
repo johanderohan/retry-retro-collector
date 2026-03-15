@@ -32,6 +32,11 @@ db.exec(`
     data       TEXT NOT NULL,
     created_at INTEGER DEFAULT (unixepoch())
   );
+  CREATE TABLE IF NOT EXISTS libros (
+    id         TEXT PRIMARY KEY,
+    data       TEXT NOT NULL,
+    created_at INTEGER DEFAULT (unixepoch())
+  );
   CREATE TABLE IF NOT EXISTS config (
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL

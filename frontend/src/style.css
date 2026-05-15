@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Theme tokens (dark-first, light via :root) ──────────────────────────── */
+:root {
+  --bg:        #F7F7F8;
+  --panel:     #FFFFFF;
+  --surface:   #F0F0F2;
+  --line:      rgba(0, 0, 0, .09);
+  --ink:       #111827;
+  --ink-muted: #6B7280;
+  --ink-dim:   #9CA3AF;
+  --spot:      none;
+  --amber:     #C77700;
+  --red:       #DC3B40;
+}
+
+.dark {
+  --bg:        #0B0B0F;
+  --panel:     #14141B;
+  --surface:   #1F1F2A;
+  --line:      rgba(255, 255, 255, .08);
+  --ink:       #F5F5F7;
+  --ink-muted: #8A8A95;
+  --ink-dim:   #5C5C68;
+  --spot:
+    radial-gradient(900px 600px at 12% -10%, rgba(245, 165, 36, .10), transparent 60%),
+    radial-gradient(800px 500px at 100% 0%, rgba(229, 72, 77, .08), transparent 55%);
+  --amber:     #F5A524;
+  --red:       #E5484D;
+}
+
+@layer base {
+  html { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--bg);
+    background-image: var(--spot);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button { font-family: inherit; }
+
+  /* Scrollbar */
+  * { scrollbar-width: thin; scrollbar-color: var(--surface) transparent; }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-thumb {
+    background: var(--surface);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+}
+
+@layer components {
+  .container-app { @apply max-w-5xl mx-auto w-full px-4 sm:px-6; }
+
+  .display {
+    font-family: 'Bebas Neue', 'Anton', system-ui, sans-serif;
+    letter-spacing: .02em;
+  }
+
+  .surface {
+    background-color: color-mix(in srgb, var(--panel) 80%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    backdrop-filter: blur(8px);
+  }
+
+  .card {
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 0.9rem;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--amber) 45%, var(--line));
+    box-shadow: 0 1px 2px rgba(0,0,0,.35), 0 14px 30px -16px rgba(0,0,0,.6);
+  }
+
+  .list-row {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 0.7rem;
+    padding: 0.6rem 0.85rem;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .list-row:hover { border-color: color-mix(in srgb, var(--amber) 40%, var(--line)); }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium
+           px-3.5 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    background-color: var(--amber);
+    color: #0B0B0F;
+  }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn-secondary {
+    border: 1px solid var(--line);
+    color: var(--ink);
+    background-color: transparent;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--amber) 55%, var(--line));
+    color: var(--amber);
+  }
+  .btn-ghost {
+    color: var(--ink-muted);
+    background-color: transparent;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    color: var(--ink);
+    background-color: color-mix(in srgb, var(--ink) 8%, transparent);
+  }
+  .btn-danger {
+    background-color: var(--red);
+    color: #fff;
+  }
+  .btn-danger:hover:not(:disabled) { filter: brightness(1.08); }
+
+  .input {
+    width: 100%;
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .input::placeholder { color: var(--ink-dim); }
+  .input:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 1px var(--amber);
+  }
+  .input-active { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
+
+  .chip {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded;
+    background-color: var(--surface);
+    color: var(--ink-muted);
+  }
+  .chip-amber {
+    background-color: color-mix(in srgb, var(--amber) 18%, transparent);
+    color: var(--amber);
+  }
+  .chip-red {
+    background-color: color-mix(in srgb, var(--red) 18%, transparent);
+    color: var(--red);
+  }
+
+  .grid-covers { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3; }
+
+  .skeleton {
+    background: linear-gradient(90deg,
+      var(--surface) 25%, color-mix(in srgb, var(--surface) 60%, transparent) 37%, var(--surface) 63%);
+    background-size: 400% 100%;
+    animation: skeleton 1.4s ease infinite;
+  }
+  @keyframes skeleton { 0% { background-position: 100% 50% } 100% { background-position: 0 50% } }
+}

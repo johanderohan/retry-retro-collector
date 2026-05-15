@@ -1,13 +1,17 @@
 services:
-  retro:
-    build: .
-    ports:
-      - "9977:9977"
+  backend:
+    build: ./backend
+    environment:
+      - PORT=3001
+      - REDIS_URL=redis://redis:6379
+      - DATA_DIR=/app/data
     volumes:
       - ./data:/app/data
-    environment:
-      - SERVER_PORT=9977
-      - REDIS_URL=redis://redis:6379
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       redis:
         condition: service_healthy
@@ -21,4 +25,12 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    restart: unless-stopped
+
+  web:
+    build: ./frontend
+    ports:
+      - "9977:80"
+    depends_on:
+      - backend
     restart: unless-stopped

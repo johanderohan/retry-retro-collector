@@ -13,7 +13,6 @@ const configStore = useConfigStore()
 
 const nav = [
   { label: 'Colección',    name: 'collection', path: '/' },
-  { label: 'Estadísticas', name: 'dashboard',  path: '/estadisticas' },
   { label: 'Plataformas',  name: 'platforms',  path: '/plataformas' },
   { label: 'Libros',       name: 'libros',     path: '/libros' },
   { label: 'Wishlist',     name: 'wishlist',   path: '/wishlist' },

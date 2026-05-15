@@ -12,12 +12,12 @@ const collection = useCollectionStore()
 const configStore = useConfigStore()
 
 const nav = [
-  { label: 'Inicio',      name: 'dashboard',  path: '/' },
-  { label: 'Colección',   name: 'collection', path: '/coleccion' },
-  { label: 'Plataformas', name: 'platforms',  path: '/plataformas' },
-  { label: 'Libros',      name: 'libros',     path: '/libros' },
-  { label: 'Wishlist',    name: 'wishlist',   path: '/wishlist' },
-  { label: 'Playground',  name: 'playground', path: '/playground' },
+  { label: 'Colección',    name: 'collection', path: '/' },
+  { label: 'Estadísticas', name: 'dashboard',  path: '/estadisticas' },
+  { label: 'Plataformas',  name: 'platforms',  path: '/plataformas' },
+  { label: 'Libros',       name: 'libros',     path: '/libros' },
+  { label: 'Wishlist',     name: 'wishlist',   path: '/wishlist' },
+  { label: 'Playground',   name: 'playground', path: '/playground' },
 ]
 const count = computed(() => collection.items.length)
 
@@ -52,11 +52,17 @@ function openConfig() { ui.closeDrawer(); ui.showConfig = true }
           </button>
         </nav>
 
-        <div class="px-5 py-3 flex justify-center">
-          <span class="chip">
-            <span class="font-bold text-ink">{{ count }}</span>
-            juego{{ count !== 1 ? 's' : '' }} en tu colección
-          </span>
+        <div class="px-4 py-3">
+          <button
+            class="w-full px-3 py-2.5 rounded-lg bg-retro-surface/60 hover:bg-retro-surface ring-1 ring-retro-line hover:ring-retro-amber/40 transition-colors text-center"
+            title="Ver estadísticas de tu colección"
+            @click="go('/estadisticas')"
+          >
+            <span class="text-sm text-ink-muted">
+              <span class="font-bold text-ink">{{ count }}</span>
+              juego{{ count !== 1 ? 's' : '' }} en tu colección
+            </span>
+          </button>
         </div>
 
         <div class="px-3 pb-5 border-t border-retro-line pt-3">

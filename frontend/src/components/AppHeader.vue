@@ -63,7 +63,7 @@ function addClick() {
 }
 function cancelSearch() {
   search.resetGameSearch()
-  router.push('/coleccion')
+  router.push('/')
 }
 function cancelPlatformSearch() {
   ui.platformAddMode = false

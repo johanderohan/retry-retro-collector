@@ -18,7 +18,7 @@ const platforms = usePlatformsStore()
 const libros = useLibrosStore()
 
 const totals = computed(() => [
-  { label: 'Colección',   value: collection.items.length, path: '/coleccion' },
+  { label: 'Colección',   value: collection.items.length, path: '/' },
   { label: 'Wishlist',    value: wishlist.items.length,   path: '/wishlist' },
   { label: 'Playground',  value: playground.games.length, path: '/playground' },
   { label: 'Plataformas', value: platforms.items.length,  path: '/plataformas' },
@@ -71,7 +71,16 @@ const isEmpty = computed(() => collection.items.length === 0)
 <template>
   <div class="flex flex-col gap-8">
     <div>
-      <h2 class="display text-3xl text-ink mb-1">Resumen</h2>
+      <RouterLink
+        to="/"
+        class="inline-flex items-center gap-1 text-xs text-ink-muted hover:text-retro-amber transition-colors mb-2"
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Volver a la colección
+      </RouterLink>
+      <h2 class="display text-3xl text-ink mb-1">Estadísticas</h2>
       <p class="text-sm text-ink-muted">Tu colección retro de un vistazo</p>
     </div>
 

@@ -2,13 +2,14 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useConfigStore } from '../stores/configStore.js'
 
 const routes = [
-  { path: '/',            name: 'dashboard',  component: () => import('../views/DashboardView.vue') },
-  { path: '/coleccion',   name: 'collection', component: () => import('../views/CollectionView.vue') },
-  { path: '/buscar',      name: 'search',     component: () => import('../views/SearchView.vue') },
-  { path: '/wishlist',    name: 'wishlist',   component: () => import('../views/WishlistView.vue') },
-  { path: '/playground',  name: 'playground', component: () => import('../views/PlaygroundView.vue') },
-  { path: '/plataformas', name: 'platforms',  component: () => import('../views/PlatformsView.vue') },
-  { path: '/libros',      name: 'libros',     component: () => import('../views/LibrosView.vue') },
+  { path: '/',             name: 'collection', component: () => import('../views/CollectionView.vue') },
+  { path: '/estadisticas', name: 'dashboard',  component: () => import('../views/DashboardView.vue') },
+  { path: '/buscar',       name: 'search',     component: () => import('../views/SearchView.vue') },
+  { path: '/wishlist',     name: 'wishlist',   component: () => import('../views/WishlistView.vue') },
+  { path: '/playground',   name: 'playground', component: () => import('../views/PlaygroundView.vue') },
+  { path: '/plataformas',  name: 'platforms',  component: () => import('../views/PlatformsView.vue') },
+  { path: '/libros',       name: 'libros',     component: () => import('../views/LibrosView.vue') },
+  { path: '/coleccion',    redirect: '/' },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 

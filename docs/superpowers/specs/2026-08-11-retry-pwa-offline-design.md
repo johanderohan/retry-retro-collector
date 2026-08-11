@@ -100,11 +100,15 @@ la VPN. Si no se guardan en el móvil, en la tienda no se ve ninguna.
 Son 702 ficheros y **28 MB**, con una media de 39 KB. Demasiado para bajarlo
 entero, así que se generan miniaturas:
 
-- El backend acepta `GET /covers/<fichero>?w=320` y devuelve una versión
+- El backend acepta `GET /covers/<fichero>?w=160` y devuelve una versión
   reducida usando `sharp`, que ya es dependencia del proyecto.
 - La miniatura se genera la primera vez que se pide y se guarda en
   `data/covers/thumbs/`, de modo que la segunda vez se sirve directa.
-- A unos 8 KB cada una, las 702 ocupan **5-6 MB**.
+- **El ancho es 160 y no 320.** Las carátulas originales solo miden 400 px de
+  ancho, y en pantalla se pintan en una caja de 80 px CSS (36 en la vista de
+  lista), así que 160 basta para pantallas 2x. Medido sobre las carátulas
+  reales: a 160 px pesan 9,8 KB de media (**6,7 MB las 702**), mientras que a
+  320 px pesarían 25,3 KB (17 MB), demasiado para el móvil.
 
 Hoy `/covers` lo sirve `express.static(COVERS_DIR)` en `server.js`, con nginx
 haciendo de proxy. El soporte de `?w=` se implementa como un middleware montado
@@ -114,7 +118,7 @@ cambian, y las URLs guardadas en la base de datos siguen siendo válidas.
 
 En el frontend, las carátulas de la colección las pintan `GameCard.vue` (vista
 de rejilla) y `GameRow.vue` (vista de lista): son los dos únicos sitios que hay
-que cambiar para que pidan `?w=320`. La carátula a tamaño completo se sigue
+que cambiar para que pidan `?w=160`. La carátula a tamaño completo se sigue
 usando al abrir la ficha de un juego. Tras cada sincronización con éxito, el
 móvil descarga en segundo plano las miniaturas que le falten y el service worker
 las guarda.
@@ -151,7 +155,7 @@ Y se modifica:
 - **`router.beforeEach` deja de esperar a nada**: la config se lee de local y
   cualquier petición va en segundo plano. Este cambio, por sí solo, elimina el
   minuto en blanco.
-- `GameCard.vue` y `GameRow.vue` piden las carátulas con `?w=320`.
+- `GameCard.vue` y `GameRow.vue` piden las carátulas con `?w=160`.
 
 La hidratación ocurre antes de montar la app, igual que en listadomanga: leer y
 parsear 400 KB de `localStorage` cuesta milisegundos.
@@ -202,7 +206,7 @@ Del backend:
 - `/api/snapshot` devuelve las cuatro partes.
 - **No** incluye `coverUrls` en ningún juego.
 - El número de juegos coincide con `/api/collection`.
-- `/covers/<f>?w=320` devuelve una imagen más pequeña que la original, y la
+- `/covers/<f>?w=160` devuelve una imagen más pequeña que la original, y la
   segunda petición la sirve desde disco sin regenerarla.
 - Un fichero inexistente responde 404 en vez de reventar.
 

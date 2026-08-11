@@ -4,6 +4,7 @@ import apiRouter, { ssRouter } from './routes/index.js'
 import { runStartupMigrations, COVERS_DIR, LOGOS_DIR } from './config/migrations.js'
 import { initRedis } from './config/redis.js'
 import { notFound, errorHandler } from './middleware/error.js'
+import { thumbsMiddleware } from './services/thumbs.service.js'
 
 const PORT = process.env.PORT || process.env.SERVER_PORT || 3001
 const app = express()
@@ -14,7 +15,9 @@ const app = express()
 app.use(express.json({ limit: '2mb' }))
 
 // Servir portadas y logos subidos
-app.use('/covers', express.static(COVERS_DIR))
+// El middleware de miniaturas va delante: solo actúa si la petición trae ?w,
+// y si no, deja que express.static sirva la imagen original.
+app.use('/covers', thumbsMiddleware(COVERS_DIR), express.static(COVERS_DIR))
 app.use('/logos',  express.static(LOGOS_DIR))
 
 // API + proxy ScreenScraper (este último NO bajo /api)

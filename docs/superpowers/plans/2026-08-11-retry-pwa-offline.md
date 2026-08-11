@@ -4,7 +4,7 @@
 
 **Goal:** Que la colección de 689 juegos y la wishlist se consulten desde el móvil en una tienda, sin VPN y sin cobertura, con sus carátulas.
 
-**Architecture:** Un endpoint nuevo devuelve la colección sin el campo `coverUrls` (4,1 MB de datos que nadie lee), lo que deja el snapshot en ~400 KB y permite guardarlo en `localStorage`. Los stores de Pinia se hidratan de ahí en vez de llamar al API, y el guard del router deja de bloquear. El backend genera miniaturas con `sharp` para que las carátulas quepan offline en 5-6 MB.
+**Architecture:** Un endpoint nuevo devuelve la colección sin el campo `coverUrls` (4,1 MB de datos que nadie lee), lo que deja el snapshot en ~400 KB y permite guardarlo en `localStorage`. Los stores de Pinia se hidratan de ahí en vez de llamar al API, y el guard del router deja de bloquear. El backend genera miniaturas con `sharp` para que las carátulas quepan offline en 6,7 MB.
 
 **Tech Stack:** Vue 3 + Pinia + Vite (frontend), Express 5 + better-sqlite3 + sharp (backend), `node --test` como runner, sin dependencias nuevas.
 
@@ -18,7 +18,7 @@
 - **Nunca esperar a la red para pintar.** La hidratación desde `localStorage` ocurre antes de montar la app y la sincronización va siempre en segundo plano con **timeout de 2 segundos**.
 - **Solo lectura sin conexión.** No hay cola de escrituras.
 - **Clave de `localStorage`**: `retry.snapshot`.
-- **Anchos de miniatura permitidos**: 160, 320 y 640. La rejilla usa **320**.
+- **Anchos de miniatura permitidos**: 160, 320 y 640. La rejilla usa **160**: las carátulas originales miden 400 px y se pintan en una caja de 80 px CSS, así que 160 cubre pantallas 2x y deja las 702 en 6,7 MB (a 320 serían 17 MB).
 - **Textos en español**; comentarios en español explicando el porqué.
 - **Rama de trabajo:** `feat/pwa-offline`.
 
@@ -51,7 +51,7 @@
 | `frontend/src/main.js` | Hidratar antes de montar y sincronizar en segundo plano |
 | `frontend/src/router/index.js` | El guard deja de esperar a la config |
 | `frontend/src/stores/collectionStore.js`, `wishlistStore.js`, `platformsStore.js`, `configStore.js` | Hidratarse del snapshot |
-| `frontend/src/components/GameCard.vue`, `GameRow.vue` | Pedir la carátula con `?w=320` |
+| `frontend/src/components/GameCard.vue`, `GameRow.vue` | Pedir la carátula con `?w=160` |
 | `frontend/src/components/AppHeader.vue` | Incluir el icono de estado |
 | `frontend/src/views/SearchView.vue` | Aviso de que requiere conexión |
 | `frontend/public/sw.js` | Dejar de interceptar `/api/`, timeout en navegación |
@@ -376,7 +376,7 @@ import { existsSync, mkdirSync } from 'node:fs'
 import { join, basename } from 'node:path'
 
 // Lista cerrada: sin ella, cualquiera podría llenar el disco pidiendo ?w=1,
-// ?w=2, ?w=3… El frontend solo usa 320.
+// ?w=2, ?w=3… El frontend solo usa 160.
 export const ANCHOS_PERMITIDOS = new Set([160, 320, 640])
 
 function dirMiniaturas(coversDir) {
@@ -459,7 +459,7 @@ Run:
 cd /home/juan/Documentos/Desarrollo/retry-retro-collector && docker compose up -d --build backend && sleep 8 && \
   F=$(ls data/covers | head -1) && \
   echo "original: $(curl -s -o /dev/null -w '%{size_download}' localhost:9977/covers/$F) bytes" && \
-  echo "w=320:    $(curl -s -o /dev/null -w '%{size_download}' 'localhost:9977/covers/'$F'?w=320') bytes"
+  echo "w=160:    $(curl -s -o /dev/null -w '%{size_download}' 'localhost:9977/covers/'$F'?w=160') bytes"
 ```
 Expected: la de 320 px ronda los 8 KB frente a los ~39 KB de media del original. Si pesan lo mismo, el middleware no está actuando.
 
@@ -740,7 +740,9 @@ Va antes que el store, que lo importa.
 
 ```js
 // Ancho que usa la rejilla. El backend solo acepta 160, 320 y 640.
-export const ANCHO_MINIATURA = 320
+// 160 y no 320: la carátula se pinta en una caja de 80 px CSS, el original solo
+// mide 400 px de ancho, y a 320 las 702 ocuparían 17 MB en vez de 6,7.
+export const ANCHO_MINIATURA = 160
 
 // Las carátulas locales viven en /covers/<uuid>.webp y aceptan ?w=. Las que
 // no lo son (URLs remotas de ScreenScraper, aún sin descargar) se dejan tal
@@ -1016,7 +1018,7 @@ importado) y sustituir el único `:src="game.coverUrl"` por `:src="cover"`.
 Run: `cd /home/juan/Documentos/Desarrollo/retry-retro-collector && docker compose up -d --build && sleep 10`
 
 Abrir `http://localhost:9977`, en DevTools → Network filtrar por `covers`:
-las peticiones deben llevar `?w=320` y pesar unos 8 KB cada una en vez de ~39 KB.
+las peticiones deben llevar `?w=160` y pesar unos 10 KB cada una en vez de ~42 KB.
 
 - [ ] **Step 4: Commit**
 
@@ -1271,9 +1273,9 @@ la sincronización.
   sola petición (~400 KB) y vive en `localStorage`.
 - El snapshot **omite `coverUrls`**: eran 4,1 MB de los 4,5 que pesaba
   `/api/collection` y no los lee ningún consumidor.
-- Las carátulas se sirven reducidas con `GET /covers/<fichero>?w=320`, generadas
+- Las carátulas se sirven reducidas con `GET /covers/<fichero>?w=160`, generadas
   con `sharp` la primera vez y guardadas en `data/covers/thumbs/`. Las 702
-  ocupan 5-6 MB en el móvil, frente a 28 MB a tamaño completo.
+  ocupan unos 6,7 MB en el móvil, frente a 28 MB a tamaño completo.
 - El service worker no intercepta `/api/`: los datos ya están en local y lo que
   interesa es que la petición falle rápido.
 ```
@@ -1309,6 +1311,6 @@ Con la rama desplegada en el NAS y el móvil en la wifi de casa:
 - [ ] `cd frontend && npm test` — 14 tests en verde.
 - [ ] `cd frontend && npm run build` — sin errores.
 - [ ] `curl -s localhost:9977/api/snapshot | wc -c` — entre 300 KB y 600 KB, frente a los 4,5 MB de `/api/collection`.
-- [ ] Una carátula con `?w=320` pesa alrededor de 8 KB, frente a ~39 KB la original.
+- [ ] Una carátula con `?w=160` pesa alrededor de 10 KB, frente a ~42 KB la original.
 - [ ] Con los contenedores parados, la app pinta la colección con carátulas y el buscador responde.
 - [ ] El móvil en modo avión abre la app, busca y filtra.

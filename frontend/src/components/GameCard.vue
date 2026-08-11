@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { REGION_FLAGS, conditionLabel } from '../utils/constants.js'
+import { thumbUrl } from '../utils/covers.js'
 
 const props = defineProps({
   game: { type: Object, required: true },
@@ -12,6 +13,10 @@ const props = defineProps({
   inPlayground: { type: Boolean, default: false },
   remove: { type: Boolean, default: false },
 })
+
+// Miniatura en vez de la carátula completa: la caja mide 80 px CSS y el
+// original 400, así que a 160 se ve igual y pesa la cuarta parte.
+const cover = computed(() => thumbUrl(props.game.coverUrl))
 const emit = defineEmits(['add', 'wishlist', 'playground', 'remove'])
 
 const imgError = ref(false)
@@ -90,7 +95,7 @@ const removeTop = computed(() => (props.add || props.playground ? 'top-11' : 'to
       <template v-if="game.coverUrl && !imgError">
         <div v-if="!imgLoaded" class="w-full h-full flex items-center justify-center text-2xl text-ink-dim">🎮</div>
         <img
-          :src="game.coverUrl"
+          :src="cover"
           :alt="`Portada de ${game.title}`"
           class="w-full h-full object-contain"
           :style="{ display: imgLoaded ? 'block' : 'none' }"

@@ -7,7 +7,12 @@ export const useLibrosStore = defineStore('libros', () => {
   let loaded = false
 
   async function load() {
-    items.value = await dbGetAll('libros')
+    // Libros no está en el alcance offline, pero sin conexión esto rechazaría
+    // tras el timeout de axios y dejaría una promesa colgando: App.vue lo llama
+    // sin await. Se traga el error y punto.
+    try {
+      items.value = await dbGetAll('libros')
+    } catch { /* sin conexión: la pantalla de Libros ya avisa */ }
     loaded = true
   }
   async function ensureLoaded() { if (!loaded) await load() }

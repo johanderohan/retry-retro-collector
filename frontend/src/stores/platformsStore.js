@@ -1,16 +1,19 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { dbGetAll, dbAdd, dbRemove, downloadLogo } from '../services/api.js'
+import { dbAdd, dbRemove, downloadLogo } from '../services/api.js'
 
 export const usePlatformsStore = defineStore('platforms', () => {
   const items = ref([])
   let loaded = false
 
-  async function load() {
-    items.value = await dbGetAll('platforms')
+  function setItems(nuevos) {
+    items.value = nuevos ?? []
     loaded = true
   }
-  async function ensureLoaded() { if (!loaded) await load() }
+
+  // Los datos llegan del snapshot local (syncStore), no de la red: la app tiene
+  // que pintar sin esperar a nadie.
+  async function ensureLoaded() { return loaded }
 
   async function add(platform) {
     await dbAdd('platforms', platform)
@@ -33,5 +36,5 @@ export const usePlatformsStore = defineStore('platforms', () => {
     await add({ ...platform, logoUrl })
   }
 
-  return { items, load, ensureLoaded, add, remove, has, addWithLogo }
+  return { items, setItems, ensureLoaded, add, remove, has, addWithLogo }
 })

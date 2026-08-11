@@ -28,7 +28,11 @@ function openConfig() { ui.closeDrawer(); ui.showConfig = true }
   <Transition name="fade">
     <div v-if="ui.drawerOpen" class="fixed inset-0 z-30 flex" @click="ui.closeDrawer()">
       <div class="absolute inset-0 bg-black/50" />
-      <div class="relative ml-auto w-64 h-full bg-retro-panel border-l border-retro-line shadow-card flex flex-col" @click.stop>
+      <div
+        class="relative ml-auto w-64 h-full bg-retro-panel border-l border-retro-line shadow-card flex flex-col
+               pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+        @click.stop
+      >
         <div class="flex items-center justify-end px-5 py-4 border-b border-retro-line">
           <button class="text-ink-dim hover:text-ink transition-colors" @click="ui.closeDrawer()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">

@@ -7,6 +7,7 @@ import SearchBar from './SearchBar.vue'
 import SearchableSelect from './SearchableSelect.vue'
 import SearchDropdown from './SearchDropdown.vue'
 import FilterBar from './FilterBar.vue'
+import SyncIcon from './SyncIcon.vue'
 import { useUiStore } from '../stores/uiStore.js'
 import { useSearchStore } from '../stores/searchStore.js'
 import { useConfigStore } from '../stores/configStore.js'
@@ -92,6 +93,7 @@ function onPlatformSearch(query) {
         </button>
 
         <div class="flex items-center gap-2">
+          <SyncIcon />
           <button
             v-if="!showSearchBar"
             class="btn btn-primary text-xs py-1.5 px-2.5"

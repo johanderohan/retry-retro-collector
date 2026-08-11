@@ -117,3 +117,33 @@ En Docker se configuran desde `docker-compose.yml`. Ver `backend/.env.example`.
 | Otros endpoints de ScreenScraper | 30 minutos |
 
 Las credenciales se excluyen de la clave de caché para que distintos usuarios compartan resultados.
+
+## Uso sin conexión (PWA)
+
+La colección y la wishlist se guardan en el móvil, así que se consultan en una
+tienda sin VPN y sin cobertura. Es solo lectura: añadir o editar juegos requiere
+conexión, porque depende de ScreenScraper.
+
+Instálala desde el navegador ("Añadir a pantalla de inicio") **entrando por
+https://retro.decafes.es**, estando en casa. Es importante usar siempre esa
+dirección y no la IP: cada origen guarda sus propios datos.
+
+El icono de nube de la cabecera indica si te puedes fiar de lo que ves: verde
+con un visto si se sincronizó hace menos de una hora, apagado con una
+admiración si no hay conexión o los datos tienen más de una hora. Tocarlo fuerza
+la sincronización.
+
+### Detalles técnicos
+
+- `GET /api/snapshot` devuelve colección, wishlist, plataformas y config en una
+  sola petición (~290 KB) y vive en `localStorage`.
+- El snapshot **omite `coverUrls`**: eran 4,1 MB de los 4,4 que pesaba
+  `/api/collection` y no los lee ningún consumidor.
+- Las carátulas se sirven reducidas con `GET /covers/<fichero>?w=160`, generadas
+  con `sharp` la primera vez y guardadas en `data/covers/thumbs/`. Las 702
+  ocupan unos 6,7 MB en el móvil, frente a 28 MB a tamaño completo. El ancho es
+  160 porque la carátula se pinta en una caja de 80 px CSS.
+- El service worker no intercepta `/api/`: los datos ya están en local y lo que
+  interesa es que la petición falle rápido.
+- El guard del router ya no espera a la config. Antes iba por axios con timeout
+  de 60 s y dejaba la app en blanco todo ese rato sin conexión.

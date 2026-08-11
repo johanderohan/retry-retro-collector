@@ -461,7 +461,7 @@ cd /home/juan/Documentos/Desarrollo/retry-retro-collector && docker compose up -
   echo "original: $(curl -s -o /dev/null -w '%{size_download}' localhost:9977/covers/$F) bytes" && \
   echo "w=160:    $(curl -s -o /dev/null -w '%{size_download}' 'localhost:9977/covers/'$F'?w=160') bytes"
 ```
-Expected: la de 320 px ronda los 8 KB frente a los ~39 KB de media del original. Si pesan lo mismo, el middleware no está actuando.
+Expected: la de 160 px ronda los 10 KB frente a los ~42 KB de media del original. Si pesan lo mismo, el middleware no está actuando.
 
 - [ ] **Step 7: Commit**
 

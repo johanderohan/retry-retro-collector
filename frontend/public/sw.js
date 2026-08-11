@@ -1,5 +1,5 @@
 const CACHE_IMAGES = 'retry-images-v2'
-const CACHE_STATIC = 'retry-static-v2'
+const CACHE_STATIC = 'retry-static-v3'
 
 // Cuánto se espera a la red antes de tirar de caché. Corto a propósito: fuera
 // de casa el NAS no responde y la app no debe quedarse esperando.
@@ -8,7 +8,12 @@ const TIMEOUT_MS = 2000
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_STATIC)
-      .then(cache => cache.addAll(['/', '/manifest.json', '/favicon.svg']))
+      // cache: 'reload' salta la caché HTTP del navegador: si no, el shell se
+      // precachea con un index.html viejo y la app se queda anclada al bundle
+      // anterior.
+      .then(cache => cache.addAll(
+        ['/', '/manifest.json', '/favicon.svg'].map(u => new Request(u, { cache: 'reload' })),
+      ))
       .then(() => self.skipWaiting()),
   )
 })

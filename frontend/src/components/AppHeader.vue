@@ -82,7 +82,12 @@ function onPlatformSearch(query) {
 </script>
 
 <template>
-  <header class="sticky top-0 z-20 surface rounded-none border-x-0 border-t-0">
+  <!-- pt-[env(safe-area-inset-top)]: con viewport-fit=cover y la barra de estado
+       translúcida, iOS dibuja la app por debajo del notch y los botones quedaban
+       tapados por el reloj y el wifi. En pantallas sin notch, env() vale 0. -->
+  <header
+    class="sticky top-0 z-20 surface rounded-none border-x-0 border-t-0 pt-[env(safe-area-inset-top)]"
+  >
     <div class="container-app py-4">
       <div class="flex items-center justify-between mb-4">
         <button class="flex items-center gap-2 hover:opacity-70 transition-opacity" aria-label="Ir a inicio" @click="goHome">

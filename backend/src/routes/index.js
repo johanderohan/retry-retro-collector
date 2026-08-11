@@ -8,10 +8,12 @@ import configRoutes from './config.routes.js'
 import coversRoutes from './covers.routes.js'
 import logosRoutes from './logos.routes.js'
 import screenscraperRoutes from './screenscraper.routes.js'
+import snapshotController from '../controllers/snapshot.controller.js'
 
 // Router montado bajo /api
 const apiRouter = Router()
 apiRouter.get('/health', (req, res) => res.json({ ok: true }))
+apiRouter.get('/snapshot', snapshotController.get)
 apiRouter.use('/collection', collectionRoutes)
 apiRouter.use('/wishlist', wishlistRoutes)
 apiRouter.use('/playground', playgroundRoutes)

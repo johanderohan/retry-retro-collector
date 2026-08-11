@@ -1,17 +1,20 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { dbGetAll, dbAdd, dbRemove, downloadCover } from '../services/api.js'
+import { dbAdd, dbRemove, downloadCover } from '../services/api.js'
 import { useWishlistStore } from './wishlistStore.js'
 
 export const useCollectionStore = defineStore('collection', () => {
   const items = ref([])
   let loaded = false
 
-  async function load() {
-    items.value = await dbGetAll('collection')
+  function setItems(nuevos) {
+    items.value = nuevos ?? []
     loaded = true
   }
-  async function ensureLoaded() { if (!loaded) await load() }
+
+  // Los datos llegan del snapshot local (syncStore), no de la red: la app tiene
+  // que pintar sin esperar a nadie.
+  async function ensureLoaded() { return loaded }
 
   async function add(game) {
     await dbAdd('collection', game)
@@ -49,5 +52,5 @@ export const useCollectionStore = defineStore('collection', () => {
     if (wishlist.inWishlist(source.id)) await wishlist.remove(source.id)
   }
 
-  return { items, load, ensureLoaded, add, remove, update, has, addFromModal }
+  return { items, setItems, ensureLoaded, add, remove, update, has, addFromModal }
 })

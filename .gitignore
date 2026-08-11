@@ -33,3 +33,4 @@ backend/.env
 *.njsproj
 *.sln
 *.sw?
+.tmp-test/

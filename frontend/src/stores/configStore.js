@@ -1,16 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { configLoad, configSave } from '../services/api.js'
+import { configSave } from '../services/api.js'
 
 export const useConfigStore = defineStore('config', () => {
   const config = ref({})
-  let inFlight = null
 
-  function fetch() {
-    if (inFlight) return inFlight
-    inFlight = configLoad().then(c => { config.value = c })
-    return inFlight
+  function setConfig(nueva) {
+    config.value = nueva ?? {}
   }
+
+  // Ya no espera a la red: la config viene del snapshot. Se mantiene el nombre
+  // fetch() porque lo llama el guard del router.
+  async function fetch() { return config.value }
 
   async function save(newConfig) {
     config.value = newConfig
@@ -19,5 +20,5 @@ export const useConfigStore = defineStore('config', () => {
 
   const isConfigured = computed(() => !!config.value.devid && !!config.value.devpassword)
 
-  return { config, fetch, save, isConfigured }
+  return { config, setConfig, fetch, save, isConfigured }
 })

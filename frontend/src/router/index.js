@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useConfigStore } from '../stores/configStore.js'
 
 const routes = [
   { path: '/',             name: 'collection', component: () => import('../views/CollectionView.vue') },
@@ -19,9 +18,10 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 }),
 })
 
-router.beforeEach(async () => {
-  await useConfigStore().fetch()
-  return true
-})
+// Antes esto esperaba a configLoad() por axios, con timeout de 60 s: sin
+// conexión, la app se quedaba hasta un minuto en blanco antes de pintar la
+// primera ruta. La config ya viene del snapshot local, así que aquí no hay nada
+// que esperar.
+router.beforeEach(() => true)
 
 export default router

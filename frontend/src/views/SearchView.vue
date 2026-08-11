@@ -6,10 +6,13 @@ import EmptyState from '../components/EmptyState.vue'
 import { useSearchStore } from '../stores/searchStore.js'
 import { useWishlistStore } from '../stores/wishlistStore.js'
 import { useUiStore } from '../stores/uiStore.js'
+import { useSyncStore } from '../stores/syncStore.js'
+import NeedsConnection from '../components/NeedsConnection.vue'
 
 const search = useSearchStore()
 const wishlist = useWishlistStore()
 const ui = useUiStore()
+const sync = useSyncStore()
 const {
   games, isLoading, error, lastQuery, hasSearched, pageInfo, searchRegionFilter,
 } = storeToRefs(search)
@@ -28,6 +31,9 @@ function clearRegion() { search.searchRegionFilter = '' }
 </script>
 
 <template>
+  <NeedsConnection v-if="!sync.online" accion="buscar juegos nuevos" />
+
+  <template v-else>
   <EmptyState v-if="isLoading" subtitle="Buscando...">
     <template #icon><span class="text-3xl animate-pulse">🕹️</span></template>
   </EmptyState>
@@ -102,4 +108,5 @@ function clearRegion() { search.searchRegionFilter = '' }
   >
     <template #icon><span class="text-3xl">🔍</span></template>
   </EmptyState>
+</template>
 </template>

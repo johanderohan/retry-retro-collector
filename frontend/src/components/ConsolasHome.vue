@@ -67,20 +67,24 @@ const flag = label => REGION_FLAGS[label] || '🌐'
       </component>
 
       <div class="reel flex items-end gap-3 overflow-x-auto -mx-4 px-4 sm:-mx-6 sm:px-6 pt-2 pb-3">
-        <div v-for="game in g.latest" :key="game.id" class="relative flex-none h-36 sm:h-44 min-w-[80px] flex items-end justify-center">
-          <button class="h-full flex items-end" :title="game.title" :aria-label="game.title" @click="emit('open', game)">
-            <img
-              v-if="game.coverUrl"
-              :src="thumbUrl(game.coverUrl)"
-              :alt="`Portada de ${game.title}`"
-              loading="lazy"
-              class="max-h-36 sm:max-h-44 max-w-[160px] sm:max-w-[200px] rounded shadow-card"
-            />
-            <span v-else class="h-36 sm:h-44 w-[108px] sm:w-[132px] rounded bg-retro-surface flex items-center justify-center p-2 text-xs leading-tight text-ink-muted text-center overflow-hidden">
-              {{ game.title }}
-            </span>
-          </button>
-          <HeartButton class="absolute top-1.5 right-1.5" :active="!!game.inPlayground" @toggle="emit('playground', game)" />
+        <div v-for="game in g.latest" :key="game.id" class="flex-none h-36 sm:h-44 min-w-[80px] flex items-end justify-center">
+          <!-- El corazón se ancla a la carátula, no a la celda: una portada
+               apaisada es más baja y si no quedaría flotando por encima. -->
+          <div class="relative">
+            <button class="block" :title="game.title" :aria-label="game.title" @click="emit('open', game)">
+              <img
+                v-if="game.coverUrl"
+                :src="thumbUrl(game.coverUrl)"
+                :alt="`Portada de ${game.title}`"
+                loading="lazy"
+                class="block max-h-36 sm:max-h-44 max-w-[160px] sm:max-w-[200px] rounded shadow-card"
+              />
+              <span v-else class="h-36 sm:h-44 w-[108px] sm:w-[132px] rounded bg-retro-surface flex items-center justify-center p-2 text-xs leading-tight text-ink-muted text-center overflow-hidden">
+                {{ game.title }}
+              </span>
+            </button>
+            <HeartButton class="absolute top-1.5 right-1.5" :active="!!game.inPlayground" @toggle="emit('playground', game)" />
+          </div>
         </div>
         <button
           v-if="g.filterValue && g.count > g.latest.length"

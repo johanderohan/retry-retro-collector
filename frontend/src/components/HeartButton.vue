@@ -15,7 +15,7 @@ const emit = defineEmits(['toggle'])
     @click.stop="emit('toggle')"
   >
     <svg width="15" height="15" viewBox="0 0 24 24" :fill="active ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
-      <path d="M12 20.5 4.3 12.9a4.9 4.9 0 0 1 6.9-6.9l.8.8.8-.8a4.9 4.9 0 0 1 6.9 6.9L12 20.5Z" />
+      <path transform="translate(0 -1.2)" d="M12 20.5 4.3 12.9a4.9 4.9 0 0 1 6.9-6.9l.8.8.8-.8a4.9 4.9 0 0 1 6.9 6.9L12 20.5Z" />
     </svg>
   </button>
 </template>

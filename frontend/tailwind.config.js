@@ -4,19 +4,22 @@ export default {
   content: ['./index.html', './src/**/*.{vue,js}'],
   theme: {
     extend: {
+      // Los colores salen de los tokens de style.css (claro y oscuro), no de
+      // valores fijos: así text-ink o bg-retro-panel cambian con el tema.
+      // color-mix permite seguir usando opacidades (bg-retro-surface/60).
       colors: {
         retro: {
-          amber:   '#F5A524',
-          red:     '#E5484D',
+          amber:   'color-mix(in srgb, var(--amber) calc(<alpha-value> * 100%), transparent)',
+          red:     'color-mix(in srgb, var(--red) calc(<alpha-value> * 100%), transparent)',
           dark:    '#0B0B0F',
-          panel:   '#14141B',
-          surface: '#1F1F2A',
-          line:    'rgba(255,255,255,.08)',
+          panel:   'color-mix(in srgb, var(--panel) calc(<alpha-value> * 100%), transparent)',
+          surface: 'color-mix(in srgb, var(--surface) calc(<alpha-value> * 100%), transparent)',
+          line:    'var(--line)',
         },
         ink: {
-          DEFAULT: '#F5F5F7',
-          muted:   '#8A8A95',
-          dim:     '#5C5C68',
+          DEFAULT: 'color-mix(in srgb, var(--ink) calc(<alpha-value> * 100%), transparent)',
+          muted:   'color-mix(in srgb, var(--ink-muted) calc(<alpha-value> * 100%), transparent)',
+          dim:     'color-mix(in srgb, var(--ink-dim) calc(<alpha-value> * 100%), transparent)',
         },
       },
       fontFamily: {

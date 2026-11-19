@@ -29,11 +29,11 @@ const imgError = ref(false)
     </div>
     <button
       v-if="remove"
-      class="w-7 h-7 flex items-center justify-center rounded-full border border-retro-line text-ink-dim hover:border-retro-red hover:text-retro-red transition-colors flex-shrink-0"
+      class="w-9 h-9 flex items-center justify-center rounded-full border border-retro-line text-ink-dim hover:border-retro-red hover:text-retro-red transition-colors flex-shrink-0"
       title="Eliminar"
       @click="emit('remove', libro.id)"
     >
-      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="1" y1="1" x2="11" y2="11" /><line x1="11" y1="1" x2="1" y2="11" />
       </svg>
     </button>

@@ -1,11 +1,17 @@
 <script setup>
+import IconGamepad from './IconGamepad.vue'
 import { reactive, ref, computed } from 'vue'
 import BaseModal from './BaseModal.vue'
 import { MANUAL_REGIONS, MANUAL_REGION_MAP } from '../utils/constants.js'
 import { validateGameManual } from '../utils/validation.js'
 import { uploadCover } from '../services/api.js'
+import { useCollectionStore } from '../stores/collectionStore.js'
 
 const emit = defineEmits(['confirm', 'cancel'])
+
+const collection = useCollectionStore()
+const platformNames = computed(() =>
+  [...new Set(collection.items.map(g => g.platform).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es')))
 
 const form = reactive({ title: '', platform: '', year: '', region: 'wor' })
 const coverFile = ref(null)
@@ -59,7 +65,7 @@ async function submit() {
 <template>
   <BaseModal max-width="max-w-sm" @close="emit('cancel')">
     <div class="px-6 pt-5 pb-4 border-b border-retro-line">
-      <h2 class="text-sm font-semibold text-ink">Registro manual</h2>
+      <h2 class="text-base font-semibold text-ink">Registro manual</h2>
       <p class="text-xs text-ink-dim mt-0.5">Añade un juego sin buscar en ScreenScraper</p>
     </div>
 
@@ -72,7 +78,10 @@ async function submit() {
 
       <div class="flex flex-col gap-1">
         <label class="text-xs text-ink-muted">Plataforma</label>
-        <input v-model="form.platform" type="text" placeholder="ej. Super Nintendo" class="input" @keydown.enter="submit" />
+        <input v-model="form.platform" type="text" list="manual-platforms" autocomplete="off" placeholder="ej. Super Nintendo" class="input" @keydown.enter="submit" />
+        <datalist id="manual-platforms">
+          <option v-for="p in platformNames" :key="p" :value="p" />
+        </datalist>
       </div>
 
       <div class="flex gap-2">
@@ -109,7 +118,7 @@ async function submit() {
           class="flex items-center gap-3 p-3 w-full surface border-dashed hover:border-retro-amber transition-colors"
           @click="fileInput?.click()"
         >
-          <div class="w-10 h-14 rounded flex items-center justify-center bg-retro-surface flex-shrink-0 text-xl">🎮</div>
+          <div class="w-10 h-14 rounded flex items-center justify-center bg-retro-surface flex-shrink-0 text-xl"><IconGamepad :size="24" /></div>
           <p class="text-xs text-ink-dim leading-relaxed text-left">Pulsa para subir una portada, o continúa sin imagen.</p>
         </button>
       </div>

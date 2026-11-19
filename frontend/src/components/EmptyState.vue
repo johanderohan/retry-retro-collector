@@ -1,4 +1,5 @@
 <script setup>
+import IconGamepad from './IconGamepad.vue'
 defineProps({
   title: { type: String, default: '' },
   subtitle: { type: String, default: '' },
@@ -9,7 +10,7 @@ const emit = defineEmits(['action'])
 
 <template>
   <div class="flex flex-col items-center justify-center min-h-64 gap-4 text-center py-12">
-    <div class="text-ink-dim"><slot name="icon">🕹️</slot></div>
+    <div class="text-ink-dim"><slot name="icon"><IconGamepad :size="40" /></slot></div>
     <div>
       <h2 v-if="title" class="text-base font-medium text-ink mb-1">{{ title }}</h2>
       <p v-if="subtitle" class="text-sm text-ink-muted">{{ subtitle }}</p>

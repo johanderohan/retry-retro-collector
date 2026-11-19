@@ -14,6 +14,7 @@
   --spot:      none;
   --amber:     #C77700;
   --red:       #DC3B40;
+  --ok:        #0E8F56;
 }
 
 .dark {
@@ -29,6 +30,7 @@
     radial-gradient(800px 500px at 100% 0%, rgba(229, 72, 77, .08), transparent 55%);
   --amber:     #F5A524;
   --red:       #E5484D;
+  --ok:        #3DD68C;
 }
 
 @layer base {
@@ -46,6 +48,9 @@
   }
 
   button { font-family: inherit; }
+
+  /* El buscador trae su propio botón de borrar. */
+  input[type='search']::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
 
   /* Scrollbar */
   * { scrollbar-width: thin; scrollbar-color: var(--surface) transparent; }
@@ -100,6 +105,7 @@
   .btn {
     @apply inline-flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium
            px-3.5 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
+    min-height: 2.5rem;
   }
   .btn-primary {
     background-color: var(--amber);
@@ -140,10 +146,33 @@
     outline: none;
     transition: border-color .15s ease, box-shadow .15s ease;
   }
+  @media (max-width: 639px) {
+    input.input:not([class*='text-']), textarea.input:not([class*='text-']) { font-size: 1rem; }
+  }
   .input::placeholder { color: var(--ink-dim); }
   .input:focus {
     border-color: var(--amber);
     box-shadow: 0 0 0 1px var(--amber);
+  }
+  /* Buscador principal: el mismo en la colección y en «Añadir». */
+  .search-input {
+    height: 2.5rem;
+    padding-left: 2.35rem;
+    padding-right: 2.35rem;
+    /* 16 px en móvil: por debajo, iOS hace zoom al enfocar el campo. */
+    font-size: 1rem;
+    font-weight: 400;
+  }
+  @media (min-width: 640px) {
+    .search-input { font-size: 0.9rem; }
+  }
+  .search-icon {
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-dim);
+    pointer-events: none;
   }
   .input-active { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
 
@@ -161,6 +190,43 @@
     color: var(--red);
   }
 
+  .verdict-have {
+    background-color: color-mix(in srgb, var(--ok) 14%, transparent);
+    color: var(--ok);
+  }
+  .verdict-wish {
+    background-color: color-mix(in srgb, var(--amber) 16%, transparent);
+    color: var(--amber);
+  }
+  .section-title {
+    font-family: 'Bebas Neue', 'Anton', system-ui, sans-serif;
+    font-size: 1.5rem;
+    line-height: 1;
+    letter-spacing: .03em;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .big-number {
+    font-family: 'Bebas Neue', 'Anton', system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .section-label {
+    @apply text-[11px] font-semibold uppercase tracking-widest;
+    color: var(--ink-dim);
+  }
+
+  /* Tantas columnas como quepan: 3 en un móvil, 6 en el ancho completo. */
+  .grid-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1.25rem 0.75rem;
+  }
+  @media (min-width: 640px) {
+    .grid-tiles { grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 1.75rem 1.25rem; }
+  }
   .grid-covers { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3; }
 
   .skeleton {

@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
 import AppDrawer from './components/AppDrawer.vue'
 import ConfirmModal from './components/ConfirmModal.vue'
@@ -8,6 +9,8 @@ import AddGameManualModal from './components/AddGameManualModal.vue'
 import AddPlatformManualModal from './components/AddPlatformManualModal.vue'
 import AddLibroManualModal from './components/AddLibroManualModal.vue'
 import AddToCollectionModal from './components/AddToCollectionModal.vue'
+import GameSheet from './components/GameSheet.vue'
+import BottomNav from './components/BottomNav.vue'
 import { useUiStore } from './stores/uiStore.js'
 import { useCollectionStore } from './stores/collectionStore.js'
 import { usePlatformsStore } from './stores/platformsStore.js'
@@ -15,6 +18,7 @@ import { useLibrosStore } from './stores/librosStore.js'
 import { useWishlistStore } from './stores/wishlistStore.js'
 
 const ui = useUiStore()
+const router = useRouter()
 const collection = useCollectionStore()
 const platforms = usePlatformsStore()
 const libros = useLibrosStore()
@@ -43,19 +47,29 @@ async function onManualLibro(libro) {
   ui.showLibroManual = false
 }
 async function onConfirmAdd(payload) {
-  await collection.addFromModal(ui.pendingAdd, payload)
+  const source = ui.pendingAdd
+  await collection.addFromModal(source, payload)
   ui.pendingAdd = null
+  // Tras un alta manual no queda nada que ver en «Añadir»: se enseña el juego
+  // ya colocado en su consola. Desde la búsqueda se sigue en los resultados,
+  // por si se quiere añadir otra versión.
+  if (String(source.id).startsWith('manual-')) {
+    ui.resetGameFilters()
+    router.push({ path: '/', query: source.platform ? { consola: source.platform } : {} })
+  }
 }
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col">
     <AppHeader />
-    <main class="flex-1 container-app py-8">
+    <main class="flex-1 container-app pt-6 sm:pt-8 pb-28">
       <RouterView />
     </main>
 
+    <BottomNav />
     <AppDrawer />
+    <GameSheet />
     <ConfirmModal />
 
     <ConfigModal v-if="ui.showConfig" @close="ui.showConfig = false" />

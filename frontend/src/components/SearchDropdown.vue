@@ -11,7 +11,7 @@ const emit = defineEmits(['update:modelValue'])
   <div class="relative flex-1">
     <select
       :value="modelValue"
-      class="input text-xs py-1.5 pr-6 appearance-none cursor-pointer"
+      class="input text-xs h-9 py-0 pl-2.5 pr-6 appearance-none cursor-pointer truncate"
       :class="modelValue && 'input-active'"
       @change="emit('update:modelValue', $event.target.value)"
     >

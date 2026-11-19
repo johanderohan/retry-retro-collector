@@ -15,7 +15,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKey))
     @click="emit('close')"
   >
     <div
-      class="surface w-full shadow-card"
+      class="surface w-full shadow-card max-h-[90vh] overflow-y-auto"
       :class="maxWidth"
       @click.stop
     >

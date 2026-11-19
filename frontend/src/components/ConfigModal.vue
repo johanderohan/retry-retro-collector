@@ -38,7 +38,7 @@ async function save() {
 <template>
   <BaseModal max-width="max-w-md" @close="emit('close')">
     <div class="flex items-center justify-between px-6 py-4 border-b border-retro-line">
-      <h2 class="text-sm font-semibold text-ink">Configuración</h2>
+      <h2 class="text-base font-semibold text-ink">Configuración</h2>
       <button class="text-ink-dim hover:text-ink transition-colors" @click="emit('close')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
           <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />

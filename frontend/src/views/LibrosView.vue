@@ -2,6 +2,9 @@
 import { computed } from 'vue'
 import CollectionGrid from '../components/CollectionGrid.vue'
 import EmptyState from '../components/EmptyState.vue'
+import IconSearch from '../components/IconSearch.vue'
+import PageTitle from '../components/PageTitle.vue'
+import { useConfirm } from '../composables/useConfirm.js'
 import { useLibrosStore } from '../stores/librosStore.js'
 import { useUiStore } from '../stores/uiStore.js'
 
@@ -15,14 +18,24 @@ const filtered = computed(() => libros.items.filter(l => {
   return true
 }))
 
-function onRemove(id) { libros.remove(id) }
+const { confirm } = useConfirm()
+async function onRemove(id) {
+  const item = libros.items.find(l => l.id === id)
+  if (!item) return
+  if (await confirm('¿Eliminar libro?', `"${item.name}" se eliminará de tus libros.`)) {
+    await libros.remove(id)
+  }
+}
+const stats = computed(() => [{ value: libros.items.length, label: libros.items.length === 1 ? 'libro' : 'libros' }])
 </script>
 
 <template>
+  <PageTitle title="Libros" :stats="libros.items.length ? stats : []" />
+
   <EmptyState
     v-if="libros.items.length === 0"
     title="Sin libros"
-    subtitle="Pulsa + Añadir para registrar un libro"
+    subtitle="Pulsa + para registrar una guía, un libro de arte o una revista"
   >
     <template #icon>
       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -37,7 +50,7 @@ function onRemove(id) { libros.remove(id) }
     action-label="Limpiar filtros"
     @action="ui.resetLibroFilters()"
   >
-    <template #icon><span class="text-3xl">🔍</span></template>
+    <template #icon><IconSearch /></template>
   </EmptyState>
 
   <CollectionGrid

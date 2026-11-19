@@ -34,26 +34,26 @@ const imgError = ref(false)
     <div class="flex items-center gap-1 flex-shrink-0">
       <button
         v-if="add && !inCollection"
-        class="w-7 h-7 flex items-center justify-center rounded-full border border-retro-line text-ink-dim hover:border-retro-amber hover:text-retro-amber transition-colors"
+        class="w-9 h-9 flex items-center justify-center rounded-full border border-retro-line text-ink-dim hover:border-retro-amber hover:text-retro-amber transition-colors"
         title="Añadir a mis plataformas"
         @click="emit('add', platform)"
       >
-        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <line x1="6" y1="1" x2="6" y2="11" /><line x1="1" y1="6" x2="11" y2="6" />
         </svg>
       </button>
-      <span v-if="add && inCollection" class="w-7 h-7 flex items-center justify-center rounded-full bg-retro-amber text-retro-dark" title="En tus plataformas">
-        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <span v-if="add && inCollection" class="w-9 h-9 flex items-center justify-center rounded-full bg-retro-amber text-retro-dark" title="En tus plataformas">
+        <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="1.5,6 4.5,9 10.5,3" />
         </svg>
       </span>
       <button
         v-if="remove"
-        class="w-7 h-7 flex items-center justify-center rounded-full border border-retro-line text-ink-dim hover:border-retro-red hover:text-retro-red transition-colors"
+        class="w-9 h-9 flex items-center justify-center rounded-full border border-retro-line text-ink-dim hover:border-retro-red hover:text-retro-red transition-colors"
         title="Eliminar"
         @click="emit('remove', platform.id)"
       >
-        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
           <line x1="1" y1="1" x2="11" y2="11" /><line x1="11" y1="1" x2="1" y2="11" />
         </svg>
       </button>

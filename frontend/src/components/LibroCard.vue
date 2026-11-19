@@ -14,11 +14,11 @@ const imgLoaded = ref(false)
   <article class="card relative flex gap-4 p-4 cursor-default">
     <button
       v-if="remove"
-      class="absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full border border-retro-line text-ink-dim hover:border-retro-red hover:text-retro-red transition-colors"
+      class="absolute top-2 right-2 w-9 h-9 flex items-center justify-center rounded-full border border-retro-line text-ink-dim hover:border-retro-red hover:text-retro-red transition-colors"
       title="Eliminar"
       @click="emit('remove', libro.id)"
     >
-      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="1" y1="1" x2="11" y2="11" /><line x1="11" y1="1" x2="1" y2="11" />
       </svg>
     </button>
@@ -46,7 +46,7 @@ const imgLoaded = ref(false)
       </div>
     </div>
 
-    <div class="flex-1 min-w-0 flex flex-col gap-1.5 pr-6">
+    <div class="flex-1 min-w-0 flex flex-col gap-1.5 pr-9">
       <h3 class="text-sm font-semibold text-ink leading-snug line-clamp-2">{{ libro.name }}</h3>
       <div class="flex items-center gap-1.5 flex-wrap">
         <span v-if="libro.tipo" class="chip">{{ libro.tipo }}</span>

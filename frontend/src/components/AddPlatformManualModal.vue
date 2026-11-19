@@ -54,7 +54,7 @@ async function submit() {
 <template>
   <BaseModal max-width="max-w-sm" @close="emit('cancel')">
     <div class="px-6 pt-5 pb-4 border-b border-retro-line">
-      <h2 class="text-sm font-semibold text-ink">Registro manual</h2>
+      <h2 class="text-base font-semibold text-ink">Registro manual</h2>
       <p class="text-xs text-ink-dim mt-0.5">Añade una plataforma sin buscar en ScreenScraper</p>
     </div>
 

@@ -44,7 +44,7 @@ function toggle() {
     <button
       type="button"
       :disabled="loading"
-      class="input flex items-center gap-1 text-xs text-left"
+      class="input flex items-center gap-1 text-xs text-left h-9 py-0"
       :class="[modelValue && 'input-active', loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer']"
       @click="toggle"
     >

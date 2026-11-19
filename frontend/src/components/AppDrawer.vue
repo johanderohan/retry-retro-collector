@@ -11,14 +11,12 @@ const ui = useUiStore()
 const collection = useCollectionStore()
 const configStore = useConfigStore()
 
+// Colección, Wishlist y Playground viven en el menú inferior.
 const nav = [
-  { label: 'Colección',    name: 'collection', path: '/' },
-  { label: 'Plataformas',  name: 'platforms',  path: '/plataformas' },
-  { label: 'Libros',       name: 'libros',     path: '/libros' },
-  { label: 'Wishlist',     name: 'wishlist',   path: '/wishlist' },
-  { label: 'Playground',   name: 'playground', path: '/playground' },
+  { label: 'Hardware',     name: 'platforms', path: '/plataformas' },
+  { label: 'Libros',       name: 'libros',    path: '/libros' },
+  { label: 'Estadísticas', name: 'dashboard', path: '/estadisticas' },
 ]
-const count = computed(() => collection.items.length)
 
 function go(path) { router.push(path); ui.closeDrawer() }
 function openConfig() { ui.closeDrawer(); ui.showConfig = true }
@@ -45,7 +43,7 @@ function openConfig() { ui.closeDrawer(); ui.showConfig = true }
           <button
             v-for="item in nav"
             :key="item.name"
-            class="w-full text-left px-3 py-2.5 text-sm rounded-lg transition-colors flex items-center gap-2.5"
+            class="w-full text-left px-3 py-3 text-base rounded-lg transition-colors flex items-center gap-2.5"
             :class="route.name === item.name
               ? 'bg-retro-surface text-ink font-medium'
               : 'text-ink-muted hover:bg-retro-surface/60'"
@@ -54,19 +52,6 @@ function openConfig() { ui.closeDrawer(); ui.showConfig = true }
             {{ item.label }}
           </button>
         </nav>
-
-        <div class="px-4 py-3">
-          <button
-            class="w-full px-3 py-2.5 rounded-lg bg-retro-surface/60 hover:bg-retro-surface ring-1 ring-retro-line hover:ring-retro-amber/40 transition-colors text-center"
-            title="Ver estadísticas de tu colección"
-            @click="go('/estadisticas')"
-          >
-            <span class="text-sm text-ink-muted">
-              <span class="font-bold text-ink">{{ count }}</span>
-              juego{{ count !== 1 ? 's' : '' }} en tu colección
-            </span>
-          </button>
-        </div>
 
         <div class="px-3 pb-5 border-t border-retro-line pt-3">
           <div class="flex items-center gap-1">

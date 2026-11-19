@@ -21,6 +21,7 @@ export const useUiStore = defineStore('ui', () => {
   const dark = ref(initDark())
   const density = ref(initDensity())
   const drawerOpen = ref(false)
+  const filtersOpen = ref(false) // desplegables de filtro: ocultos hasta pulsar el icono
 
   function applyDark() {
     document.documentElement.classList.toggle('dark', dark.value)
@@ -52,13 +53,14 @@ export const useUiStore = defineStore('ui', () => {
   const showPlatformManual = ref(false)
   const showLibroManual = ref(false)
   const pendingAdd = ref(null) // juego pendiente de añadir a la colección
+  const sheetGameId = ref(null) // juego de la colección con la ficha abierta
 
   return {
-    dark, density, drawerOpen,
+    dark, density, drawerOpen, filtersOpen,
     toggleDark, setDensity, openDrawer, closeDrawer,
     gameFilters, platformFilters, libroFilters, collectionSort,
     resetGameFilters, resetPlatformFilters, resetLibroFilters,
     platformAddMode, showConfig, showGameManual, showPlatformManual, showLibroManual,
-    pendingAdd,
+    pendingAdd, sheetGameId,
   }
 })

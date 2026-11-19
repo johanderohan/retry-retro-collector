@@ -55,7 +55,7 @@ const searchRegionOptions = computed(() => {
 const systemOptions = computed(() =>
   allSystemsList.value.map(s => ({ value: s.id, label: s.name })))
 
-function goHome() { router.push('/') }
+function goHome() { ui.resetGameFilters(); router.push('/') }
 function addClick() {
   if (name.value === 'libros') { ui.showLibroManual = true; return }
   if (isPlatforms.value) { ui.platformAddMode = true; search.resetPlatformSearch(); return }
@@ -88,12 +88,12 @@ function onPlatformSearch(query) {
   <header
     class="sticky top-0 z-20 surface rounded-none border-x-0 border-t-0 pt-[env(safe-area-inset-top)]"
   >
-    <div class="container-app py-4">
-      <div class="flex items-center justify-between mb-4">
+    <div class="container-app py-2.5 sm:py-3">
+      <div class="flex items-center justify-between mb-2.5 sm:mb-3">
         <button class="flex items-center gap-2 hover:opacity-70 transition-opacity" aria-label="Ir a inicio" @click="goHome">
           <AppLogo :size="26" />
           <h1 class="text-lg font-semibold text-ink tracking-tight">
-            Retry <span class="font-thin">| </span><span class="text-xs font-thin text-ink-muted">Your retro collection</span>
+            Retry<span class="hidden sm:inline"> <span class="font-thin">| </span><span class="text-xs font-thin text-ink-muted">Your retro collection</span></span>
           </h1>
         </button>
 
@@ -101,44 +101,51 @@ function onPlatformSearch(query) {
           <SyncIcon />
           <button
             v-if="!showSearchBar"
-            class="btn btn-primary text-xs py-1.5 px-2.5"
+            class="w-10 h-10 flex items-center justify-center rounded-xl transition-[filter] hover:brightness-110"
+            style="background-color: var(--amber); color: #0B0B0F"
+            aria-label="Añadir"
+            title="Añadir"
             @click="addClick"
           >
-            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-              <line x1="6" y1="1" x2="6" y2="11" /><line x1="1" y1="6" x2="11" y2="6" />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+              <path d="M12 5v14M5 12h14" />
             </svg>
-            Añadir
           </button>
 
           <template v-if="isSearch">
-            <button class="btn btn-secondary text-xs py-1.5 px-2.5" title="Añadir juego manualmente" @click="ui.showGameManual = true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                <line x1="6" y1="1" x2="6" y2="11" /><line x1="1" y1="6" x2="11" y2="6" />
+            <button class="btn btn-secondary h-10 px-3 text-sm" title="Añadir juego manualmente" @click="ui.showGameManual = true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14" />
               </svg>
-              Manual
+              A mano
             </button>
-            <button class="btn btn-ghost text-xs py-1.5 px-2" @click="cancelSearch">Cancelar</button>
+            <button
+              class="w-10 h-10 flex items-center justify-center rounded-xl border border-retro-line text-ink-muted hover:text-ink hover:border-retro-amber transition-colors"
+              aria-label="Cerrar" title="Cerrar" @click="cancelSearch"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
           </template>
 
           <template v-if="platformSearchActive">
-            <button class="btn btn-secondary text-xs py-1.5 px-2.5" title="Añadir plataforma manualmente" @click="ui.showPlatformManual = true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                <line x1="6" y1="1" x2="6" y2="11" /><line x1="1" y1="6" x2="11" y2="6" />
+            <button class="btn btn-secondary h-10 px-3 text-sm" title="Añadir plataforma manualmente" @click="ui.showPlatformManual = true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14" />
               </svg>
-              Manual
+              A mano
             </button>
-            <button class="btn btn-ghost text-xs py-1.5 px-2" @click="cancelPlatformSearch">Cancelar</button>
+            <button
+              class="w-10 h-10 flex items-center justify-center rounded-xl border border-retro-line text-ink-muted hover:text-ink hover:border-retro-amber transition-colors"
+              aria-label="Cerrar" title="Cerrar" @click="cancelPlatformSearch"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
           </template>
 
-          <button
-            class="p-1.5 text-ink-dim hover:text-ink rounded-lg transition-colors"
-            aria-label="Abrir menú"
-            @click="ui.openDrawer()"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
         </div>
       </div>
 
@@ -170,7 +177,7 @@ function onPlatformSearch(query) {
       <FilterBar v-else-if="showFilterBar" :context="filterContext" />
 
       <p v-if="!isConfigured && (isSearch || isPlatforms)" class="text-xs text-retro-amber mt-2 pb-1">
-        ⚠️ Configura tus credenciales de ScreenScraper para empezar
+        Configura tus credenciales de ScreenScraper para empezar
       </p>
     </div>
   </header>

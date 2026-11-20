@@ -78,7 +78,6 @@ function openManual() { ui.showPlatformManual = true }
           :items="platformResults"
           type="platform"
           add
-          force-gallery
           :in-collection="p => platforms.has(p.id)"
           @add="onAdd"
         />

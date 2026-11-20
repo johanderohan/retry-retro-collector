@@ -18,7 +18,7 @@ const wishlist = useWishlistStore()
 const playground = usePlaygroundStore()
 const platforms = usePlatformsStore()
 const libros = useLibrosStore()
-const { density, filtersOpen } = storeToRefs(ui)
+const { filtersOpen } = storeToRefs(ui)
 
 const isPlatforms = computed(() => props.context === 'platforms')
 const isLibros = computed(() => props.context === 'libros')
@@ -126,7 +126,7 @@ const activeCount = computed(() =>
       </button>
     </div>
 
-    <!-- Dropdowns + sort + density (plegados por defecto) -->
+    <!-- Dropdowns + sort (plegados por defecto) -->
     <div v-show="filtersOpen" id="filter-panel" class="flex gap-2">
       <div v-for="d in dropdowns" :key="d.key" class="relative flex-1 min-w-0">
         <select
@@ -153,34 +153,6 @@ const activeCount = computed(() =>
         <svg class="absolute right-2 top-1/2 -translate-y-1/2 text-ink-dim pointer-events-none" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="2,4 6,8 10,4" />
         </svg>
-      </div>
-
-      <!-- Density toggle -->
-      <div class="flex rounded-lg border border-retro-line overflow-hidden flex-shrink-0">
-        <button
-          type="button"
-          class="px-2 h-9 transition-colors"
-          :class="density === 'gallery' ? 'bg-retro-amber text-retro-dark' : 'text-ink-dim hover:text-ink'"
-          title="Galería"
-          @click="ui.setDensity('gallery')"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-            <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          class="px-2 h-9 transition-colors"
-          :class="density === 'list' ? 'bg-retro-amber text-retro-dark' : 'text-ink-dim hover:text-ink'"
-          title="Lista"
-          @click="ui.setDensity('list')"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
-            <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
-          </svg>
-        </button>
       </div>
     </div>
   </div>

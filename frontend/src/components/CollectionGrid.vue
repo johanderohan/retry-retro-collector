@@ -1,19 +1,14 @@
 <script setup>
 import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useUiStore } from '../stores/uiStore.js'
 import GameCard from './GameCard.vue'
 import GameRow from './GameRow.vue'
 import GameTile from './GameTile.vue'
 import PlatformCard from './PlatformCard.vue'
-import PlatformRow from './PlatformRow.vue'
 import LibroCard from './LibroCard.vue'
-import LibroRow from './LibroRow.vue'
 
 const props = defineProps({
   items: { type: Array, default: () => [] },
   type: { type: String, required: true }, // 'game' | 'platform' | 'libro'
-  forceGallery: { type: Boolean, default: false },
   forceList: { type: Boolean, default: false }, // resultados de búsqueda: siempre filas
   tiles: { type: Boolean, default: false }, // galería de solo portadas (colección)
   add: { type: Boolean, default: false },
@@ -26,13 +21,12 @@ const props = defineProps({
 })
 const emit = defineEmits(['add', 'wishlist', 'playground', 'remove', 'open'])
 
-const ui = useUiStore()
-const { density } = storeToRefs(ui)
-const isList = computed(() => props.forceList || (!props.forceGallery && density.value === 'list'))
+// Solo los resultados de búsqueda de juegos van en filas; el resto, en rejilla.
+const isList = computed(() => props.forceList && props.type === 'game')
 
 const comp = computed(() => {
-  if (props.type === 'platform') return isList.value ? PlatformRow : PlatformCard
-  if (props.type === 'libro') return isList.value ? LibroRow : LibroCard
+  if (props.type === 'platform') return PlatformCard
+  if (props.type === 'libro') return LibroCard
   if (isList.value) return GameRow
   return props.tiles ? GameTile : GameCard
 })

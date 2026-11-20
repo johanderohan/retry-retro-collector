@@ -103,7 +103,6 @@ function clearRegion() { search.searchRegionFilter = '' }
       type="game"
       add
       wishlist
-      force-gallery
       :in-collection="g => ownedIds.has(g.id)"
       :in-wishlist="g => wishlist.inWishlist(g.id)"
       @open="onAdd"
